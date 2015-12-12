@@ -27,6 +27,7 @@ func ParseConfig() {
 type Game struct {
     stage int
     answer string
+    clue string
 
     players []ClientConn
 }
@@ -80,12 +81,13 @@ func NewTurnPacket(payload map[string]interface{}) Packet {
     }
 }
 
-func NewAnswerPacket(b bool, answer string, owner string) Packet {
+func NewAnswerPacket(b bool, answer string, clue string, owner string) Packet {
     return Packet {
         Action: "answer",
         Payload: map[string]interface{} {
             "boolean": b,
             "answer": answer,
+            "clue": clue,
         },
     }
 }
@@ -199,6 +201,7 @@ func websocketConn(r *http.Request, w http.ResponseWriter, ren render.Render) {
 
         switch packet.Action {
             case "submit_clue":
+                games[sockCli].clue = packet.Payload["clue"].(string)
                 sockCli.websocket.WriteMessage(1, NewTurnPacket(map[string]interface{} {
                     "turn": "their",
                     "state": "waiting_for_answers",
@@ -210,8 +213,8 @@ func websocketConn(r *http.Request, w http.ResponseWriter, ren render.Render) {
                 }).toJson())
                 break
             case "submit_answer":
-                sockCli.websocket.WriteMessage(1, NewAnswerPacket(packet.Payload["answer"].(string) == games[sockCli].answer,  packet.Payload["answer"].(string), "your").toJson())
-                games[sockCli].Opponent(sockCli).websocket.WriteMessage(1, NewAnswerPacket(packet.Payload["answer"].(string) == games[sockCli].answer,  packet.Payload["answer"].(string), "their").toJson())
+                sockCli.websocket.WriteMessage(1, NewAnswerPacket(packet.Payload["answer"].(string) == games[sockCli].answer,  packet.Payload["answer"].(string), games[sockCli].clue, "your").toJson())
+                games[sockCli].Opponent(sockCli).websocket.WriteMessage(1, NewAnswerPacket(packet.Payload["answer"].(string) == games[sockCli].answer,  packet.Payload["answer"].(string), games[sockCli].clue, "their").toJson())
                 time.Sleep(time.Second * 15)
                 sockCli.websocket.WriteMessage(1, NewTurnPacket(map[string]interface{} {
                     "turn": "your",
