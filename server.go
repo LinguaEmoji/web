@@ -214,8 +214,9 @@ func websocketConn(r *http.Request, w http.ResponseWriter, ren render.Render) {
                 }).toJson())
                 break
             case "submit_answer":
-                sockCli.websocket.WriteMessage(1, NewAnswerPacket(packet.Payload["answer"].(string) == games[sockCli].answer,  packet.Payload["answer"].(string), games[sockCli].clue, games[sockCli].answer, "your").toJson())
-                games[sockCli].Opponent(sockCli).websocket.WriteMessage(1, NewAnswerPacket(packet.Payload["answer"].(string) == games[sockCli].answer,  packet.Payload["answer"].(string), games[sockCli].clue, games[sockCli].answer, "their").toJson())
+                game := games[sockCli]
+                sockCli.websocket.WriteMessage(1, NewAnswerPacket(packet.Payload["answer"].(string) == game.answer,  packet.Payload["answer"].(string), game.clue, game.answer, "your").toJson())
+                game.Opponent(sockCli).websocket.WriteMessage(1, NewAnswerPacket(packet.Payload["answer"].(string) == game.answer,  packet.Payload["answer"].(string), game.clue, game.answer, "their").toJson())
                 time.Sleep(time.Second * 15)
                 sockCli.websocket.WriteMessage(1, NewTurnPacket(map[string]interface{} {
                     "turn": "your",
