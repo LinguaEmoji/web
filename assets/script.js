@@ -30,6 +30,8 @@ function playTurn(phrase) {
 function playTurnEnglish(clue) {
     $('#wait-container').hide();
     $('#englishify-container').fadeIn();
+
+    $('#starting-english').text(clue);
 }
 
 function waitTurn() {
@@ -98,5 +100,15 @@ $('#emoji-submit').click(function() {
             clue: $('#emoji-input').val()
         }
     }
+    GLOBAL_WS.send(JSON.stringify(msg));
+});
+
+$('#english-submit').click(function() {
+    var msg = {
+        Action: 'submit_answer',
+        Payload: {
+            answer: $('#english-input').val()
+        }
+    };
     GLOBAL_WS.send(JSON.stringify(msg));
 });
