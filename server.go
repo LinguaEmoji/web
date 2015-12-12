@@ -9,6 +9,7 @@ import (
     "sync"
     "net/http"
     "encoding/json"
+    "log"
 )
 
 type Game struct {
@@ -103,6 +104,7 @@ func websocketConn(r *http.Request, w http.ResponseWriter, ren render.Render) {
         return
     }
     _, raw, _ := ws.ReadMessage()
+    log.Print("message: ", string(raw))
 
     client := ws.RemoteAddr()
     sockCli := ClientConn{string(raw), ws, client}
