@@ -188,7 +188,7 @@ func websocketConn(r *http.Request, w http.ResponseWriter, ren render.Render) {
             case "submit_clue":
                 sockCli.websocket.WriteMessage(1, NewTurnPacket(map[string]interface{} {
                     "turn": "their",
-                    "state": "wait_for_answers",
+                    "state": "waiting_for_answers",
                 }).toJson())
                 games[sockCli].Opponent(sockCli).websocket.WriteMessage(1, NewTurnPacket(map[string]interface{} {
                     "turn": "yours",
