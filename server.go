@@ -81,11 +81,12 @@ func NewTurnPacket(payload map[string]interface{}) Packet {
     }
 }
 
-func NewAnswerPacket(b bool, answer string, clue string, owner string) Packet {
+func NewAnswerPacket(b bool, answer string, clue string, realanswer string, owner string) Packet {
     return Packet {
         Action: "answer",
         Payload: map[string]interface{} {
             "boolean": b,
+            "real_answer": realanswer,
             "answer": answer,
             "clue": clue,
         },
@@ -213,8 +214,8 @@ func websocketConn(r *http.Request, w http.ResponseWriter, ren render.Render) {
                 }).toJson())
                 break
             case "submit_answer":
-                sockCli.websocket.WriteMessage(1, NewAnswerPacket(packet.Payload["answer"].(string) == games[sockCli].answer,  packet.Payload["answer"].(string), games[sockCli].clue, "your").toJson())
-                games[sockCli].Opponent(sockCli).websocket.WriteMessage(1, NewAnswerPacket(packet.Payload["answer"].(string) == games[sockCli].answer,  packet.Payload["answer"].(string), games[sockCli].clue, "their").toJson())
+                sockCli.websocket.WriteMessage(1, NewAnswerPacket(packet.Payload["answer"].(string) == games[sockCli].answer,  packet.Payload["answer"].(string), games[sockCli].clue, games[sockCli].answer, "your").toJson())
+                games[sockCli].Opponent(sockCli).websocket.WriteMessage(1, NewAnswerPacket(packet.Payload["answer"].(string) == games[sockCli].answer,  packet.Payload["answer"].(string), games[sockCli].clue, games[sockCli].answer, "their").toJson())
                 time.Sleep(time.Second * 15)
                 sockCli.websocket.WriteMessage(1, NewTurnPacket(map[string]interface{} {
                     "turn": "your",
