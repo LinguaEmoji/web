@@ -107,3 +107,16 @@ body {
     text-align: center;
     margin: 0 auto;
 }
+
+#starting-english {
+    font-weight: normal !important;
+}
+
+#english-input-container {
+    text-align: center;
+}
+
+#english-submit-container {
+    text-align: center;
+    margin-top: 10px;
+}
