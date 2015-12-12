@@ -5,21 +5,40 @@ import (
     "github.com/gorilla/websocket"
     "github.com/martini-contrib/render"
 
+    "os"
     "net"
     "sync"
     "net/http"
+    "math/rand"
     "encoding/json"
-    "log"
 )
+
+type Config struct {
+    Phrases []string `json:"phrases"`
+}
+
+func ParseConfig() {
+    cfg, _ := os.Open("config.json")
+    decoder := json.NewDecoder(cfg)
+    decoder.Decode(&config)
+}
 
 type Game struct {
     stage int
+    answer string
 
     players []ClientConn
 }
 
+func (game *Game) NewWord() string {
+    random := rand.Intn((len(config.Phrases) - 1) - 0) + 0
+    game.answer = config.Phrases[random]
+    return game.answer
+}
+
 type ClientConn struct {
     name string
+    points int
 
     websocket *websocket.Conn
     clientIP net.Addr
@@ -35,15 +54,37 @@ func (p Packet) toJson() []byte {
     return encode
 }
 
+func NewFoundGamePacket(match string) Packet {
+    return Packet {
+        Action: "found_game",
+        Payload: map[string]interface{} {
+            "match": match,
+        },
+    }
+}
+
+func NewTurnPacket(turn string, word string) Packet {
+    return Packet {
+        Action: "turn",
+        Payload: map[string]interface{} {
+            "turn": turn,
+            "word": word,
+        },
+    }
+}
+
 var (
-    games map[ClientConn]Game
+    config Config
+
+    games map[ClientConn]*Game
     queue []ClientConn
 
     RWMutex sync.RWMutex
 )
 
 func main() {
-    games = map[ClientConn]Game {}
+    games = map[ClientConn]*Game {}
+    ParseConfig()
     m := martini.Classic()
 
     m.Use(martini.Static("assets", martini.StaticOptions{
@@ -72,26 +113,17 @@ func addToQueue(sockCli ClientConn) {
     queue = append(queue, sockCli)
 
     if len(queue) >= 2 {
-        game := Game {
+        game := &Game {
             stage: 0,
             players: []ClientConn {queue[0], queue[1]},
         }
         games[queue[0]] = game
         games[queue[1]] = game
 
-        queue[0].websocket.WriteMessage(1, Packet {
-            Action: "found_game",
-            Payload: map[string]interface{} {
-                "match": queue[1].name,
-            },
-        }.toJson())
-
-        queue[1].websocket.WriteMessage(1, Packet {
-            Action: "found_game",
-            Payload: map[string]interface{} {
-                "match": queue[0].name,
-            },
-        }.toJson())
+        queue[0].websocket.WriteMessage(1, NewFoundGamePacket(queue[1].name).toJson())
+        queue[0].websocket.WriteMessage(1, NewTurnPacket("your", game.NewWord()).toJson())
+        queue[1].websocket.WriteMessage(1, NewFoundGamePacket(queue[0].name).toJson())
+        queue[1].websocket.WriteMessage(1, NewTurnPacket("their", "").toJson())
 
         queue = queue[2:]
     }
@@ -114,10 +146,9 @@ func websocketConn(r *http.Request, w http.ResponseWriter, ren render.Render) {
         return
     }
     _, raw, _ := ws.ReadMessage()
-    log.Print("message: ", string(raw))
 
     client := ws.RemoteAddr()
-    sockCli := ClientConn{string(raw), ws, client}
+    sockCli := ClientConn{string(raw), 0, ws, client}
 
     addToQueue(sockCli)
 
@@ -128,6 +159,10 @@ func websocketConn(r *http.Request, w http.ResponseWriter, ren render.Render) {
             return
         }
     }
+}
+
+func handleMessage(message string) {
+    
 }
 
 func getIndexOf(conns []ClientConn, conn ClientConn) int {
