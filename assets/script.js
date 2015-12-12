@@ -27,8 +27,14 @@ function playTurn(phrase) {
     });
 }
 
+function playTurnEnglish(clue) {
+    $('#wait-container').hide();
+    $('#englishify-container').fadeIn();
+}
+
 function waitTurn() {
     $('#emojify-container').hide();
+    $('.emojiPicker').hide();
     $('#wait-container').fadeIn();
 }
 
@@ -68,7 +74,11 @@ $('#play-button').click(function() {
         } else if (action == "turn") {
             var turn = payload['turn'];
             if (turn == "your") {
-                playTurn(payload['word']);
+                if (payload['state'] == null || payload['state'] == "give_clue") {
+                    playTurn(payload['word']);
+                } else if (payload['state'] == 'give_answer') {
+                    playTurnEnglish(payload['clue']);
+                }
             } else if (turn == "their") {
                 waitTurn();
             }
@@ -88,5 +98,5 @@ $('#emoji-submit').click(function() {
             clue: $('#emoji-input').val()
         }
     }
-    ws.send(JSON.stringify(msg));
+    GLOBAL_WS.send(JSON.stringify(msg));
 });
