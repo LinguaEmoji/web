@@ -43,6 +43,10 @@ var (
 
 func main() {
     m := martini.Classic()
+
+    m.Use(martini.Static("assets", martini.StaticOptions{
+        Prefix: "assets",
+    }))
     m.Use(render.Renderer(render.Options {
         Directory: "templates",
         Layout: "layout",

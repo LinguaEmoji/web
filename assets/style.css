@@ -1,0 +1,44 @@
+body {
+    margin: 0;
+}
+
+#brand-container {
+    padding: 10px;
+    text-align: center;
+}
+
+#brand-container h1 {
+    font-size: 3em;
+    font-weight: 100;
+}
+
+#play-container {
+    width: 500px;
+    margin: 0 auto;
+
+    text-align: center;
+    margin-top: calc(50vmin - 100px);
+}
+
+#play-button-container {
+    margin-top: 5px;
+}
+
+#play-button-container button {
+    font-weight: normal;
+}
+
+#navbar {
+    background-color: #F2F2FF;
+    box-shadow: 0 4px 2px -2px gray;
+}
+#howto {
+    width: 500px;
+    margin: 0 auto;
+
+    bottom: 0;
+}
+
+#howto h3 {
+    text-align: center;
+}
