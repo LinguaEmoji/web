@@ -20,6 +20,10 @@ $('#play-button').click(function() {
 
         console.log("Sending nick");
         ws.send(nick);
+
+        $('#load-status h2').text("Joined game queue");
+        $('#load-status').slideToggle();
+
     };
     ws.onmessage = function(event) {
         console.log("Got message", event.data);
