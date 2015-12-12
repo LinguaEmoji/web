@@ -40,6 +40,17 @@ function waitTurn() {
     $('#wait-container').fadeIn();
 }
 
+function displayAnswer(answer, correct, clue, real) {
+    $('#wait-container').hide();
+    $('#englishify-container').hide();
+    $('#emojify-container').hide();
+    
+    $('#ans-original-phrase').val(real);
+    $('#ans-emoji-clue').val(clue);
+    $('#ans-english').val(answer);
+    $('#answer-container').show();
+}
+
 var GLOBAL_WS;
 
 $('#play-button').click(function() {
@@ -84,6 +95,12 @@ $('#play-button').click(function() {
             } else if (turn == "their") {
                 waitTurn();
             }
+        } else if (action == "answer") {
+            var answer  = payload['answer'];
+            var correct = payload['boolean'];
+            var clue    = payload['clue'];
+            var real    = payload['real_answer'];
+            displayAnswer(answer, correct, clue, real);
         }
     };
 });
