@@ -36,6 +36,15 @@ func (game *Game) NewWord() string {
     return game.answer
 }
 
+func (game Game) Opponent(sockCli ClientConn) ClientConn {
+    for i := 0; i != 2; i++ {
+        if game.players[i].name != sockCli.name {
+            return game.players[i]
+        }
+    }
+    return ClientConn{}
+}
+
 type ClientConn struct {
     name string
     points int
@@ -63,12 +72,18 @@ func NewFoundGamePacket(match string) Packet {
     }
 }
 
-func NewTurnPacket(turn string, word string) Packet {
+func NewTurnPacket(payload map[string]interface{}) Packet {
     return Packet {
         Action: "turn",
+        Payload: payload,
+    }
+}
+
+func NewAnswerPacket(b bool) Packet {
+    return Packet {
+        Action: "answer",
         Payload: map[string]interface{} {
-            "turn": turn,
-            "word": word,
+            "boolean": b,
         },
     }
 }
@@ -121,9 +136,16 @@ func addToQueue(sockCli ClientConn) {
         games[queue[1]] = game
 
         queue[0].websocket.WriteMessage(1, NewFoundGamePacket(queue[1].name).toJson())
-        queue[0].websocket.WriteMessage(1, NewTurnPacket("your", game.NewWord()).toJson())
+        queue[0].websocket.WriteMessage(1, NewTurnPacket(map[string]interface{} {
+            "turn": "your",
+            "state": "give_clue",
+            "word": game.NewWord(),
+        }).toJson())
         queue[1].websocket.WriteMessage(1, NewFoundGamePacket(queue[0].name).toJson())
-        queue[1].websocket.WriteMessage(1, NewTurnPacket("their", "").toJson())
+        queue[1].websocket.WriteMessage(1, NewTurnPacket(map[string]interface{} {
+            "turn": "their",
+            "state": "waiting_for_clue",
+        }).toJson())
 
         queue = queue[2:]
     }
@@ -153,16 +175,46 @@ func websocketConn(r *http.Request, w http.ResponseWriter, ren render.Render) {
     addToQueue(sockCli)
 
     for {
-        _, _, err := ws.ReadMessage()
+        _, raw, err := ws.ReadMessage()
         if err != nil {
             removeFromQueue(sockCli)
             return
         }
-    }
-}
 
-func handleMessage(message string) {
-    
+        var packet Packet
+        json.Unmarshal(raw, &packet)
+
+        switch packet.Action {
+            case "submit_clue":
+                sockCli.websocket.WriteMessage(1, NewTurnPacket(map[string]interface{} {
+                    "turn": "their",
+                    "state": "wait_for_answers",
+                }).toJson())
+                games[sockCli].Opponent(sockCli).websocket.WriteMessage(1, NewTurnPacket(map[string]interface{} {
+                    "turn": "yours",
+                    "state": "give_answer",
+                    "clue": packet.Payload["clue"].(string),
+                }).toJson())
+                break
+            case "submit_answer":
+                if packet.Payload["answer"] != games[sockCli].answer {
+                    sockCli.websocket.WriteMessage(1, NewAnswerPacket(false).toJson())
+                    break
+                }
+
+                sockCli.websocket.WriteMessage(1, NewAnswerPacket(true).toJson())
+                sockCli.websocket.WriteMessage(1, NewTurnPacket(map[string]interface{} {
+                    "turn": "your",
+                    "state": "give_clue",
+                    "word": games[sockCli].NewWord(),
+                }).toJson())
+                sockCli.websocket.WriteMessage(1, NewTurnPacket(map[string]interface{} {
+                    "turn": "their",
+                    "state": "waiting_for_clue",
+                }).toJson())
+                break
+        }
+    }
 }
 
 func getIndexOf(conns []ClientConn, conn ClientConn) int {
