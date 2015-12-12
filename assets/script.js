@@ -14,6 +14,9 @@ function beginGame(p2Nick) {
 
 function playTurn(phrase) {
     $('#wait-container').hide();
+    $('#answer-container').hide();
+
+    $('#emoji-input').val("");
 
     $('#starting-phrase').text(phrase);
     $('#emojify-container').fadeIn(400, function() {
@@ -29,6 +32,7 @@ function playTurn(phrase) {
 
 function playTurnEnglish(clue) {
     $('#wait-container').hide();
+    $('#answer-container').hide();
     $('#englishify-container').fadeIn();
 
     $('#starting-english').text(clue);
@@ -37,6 +41,7 @@ function playTurnEnglish(clue) {
 function waitTurn() {
     $('#emojify-container').hide();
     $('.emojiPicker').hide();
+    $('#answer-container').hide();
     $('#wait-container').fadeIn();
 }
 
@@ -45,10 +50,16 @@ function displayAnswer(answer, correct, clue, real) {
     $('#englishify-container').hide();
     $('#emojify-container').hide();
     
-    $('#ans-original-phrase').val(real);
-    $('#ans-emoji-clue').val(clue);
-    $('#ans-english').val(answer);
+    $('#ans-original-phrase').text(real);
+    $('#ans-emoji-clue').text(clue);
+    $('#ans-english').text(answer);
+    if (correct) {
+        $('#ans-result').text("Good job! 👌");
+    } else {
+        $('#ans-result').text("Not quite. 😕");
+    }
     $('#answer-container').show();
+
 }
 
 var GLOBAL_WS;
