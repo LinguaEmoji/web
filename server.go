@@ -43,6 +43,7 @@ var (
 )
 
 func main() {
+    games := map[ClientConn]Game {}
     m := martini.Classic()
 
     m.Use(martini.Static("assets", martini.StaticOptions{
