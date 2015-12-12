@@ -27,6 +27,10 @@
         {
             "words": ["golf", "clap"],
             "types": ["noun", "noun"]
+        },
+        {
+            "words": ["what", "does", "the", "fox", "say"],
+            "types": ["pronoun", "verb", "article", "animal", "verb"]
         }
     ] 
 }

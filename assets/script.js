@@ -30,12 +30,19 @@ function playTurn(phrase) {
     });
 }
 
-function playTurnEnglish(clue) {
+function playTurnEnglish(clue, types) {
     $('#wait-container').hide();
     $('#answer-container').hide();
     $('#englishify-container').fadeIn();
 
     $('#starting-english').text(clue);
+    
+    var elem = $('#english-input-container');
+    elem.empty();
+    types.forEach(function(t) {
+        var html = '<div class="ui input"><input class="english-input" placeholder="' + t + '" type="text"></div>';
+        elem.append(html);
+    });
 }
 
 function waitTurn() {
@@ -101,7 +108,7 @@ $('#play-button').click(function() {
                 if (payload['state'] == null || payload['state'] == "give_clue") {
                     playTurn(payload['word']);
                 } else if (payload['state'] == 'give_answer') {
-                    playTurnEnglish(payload['clue']);
+                    playTurnEnglish(payload['clue'], payload['types']);
                 }
             } else if (turn == "their") {
                 waitTurn();
@@ -132,10 +139,15 @@ $('#emoji-submit').click(function() {
 });
 
 $('#english-submit').click(function() {
+    var words = [];
+    var elems = $('#english-input-container').find('input');
+    for (var i = 0; i < elems.length; i++) {
+        words.push(elems[i].value);
+    }
     var msg = {
         Action: 'submit_answer',
         Payload: {
-            answer: $('#english-input').val()
+            answer: words.join(" ")
         }
     };
     GLOBAL_WS.send(JSON.stringify(msg));

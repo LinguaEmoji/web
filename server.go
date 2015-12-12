@@ -7,6 +7,7 @@ import (
 
     "os"
     "net"
+    "log"
     "time"
     "sync"
     "strings"
@@ -20,14 +21,15 @@ type Config struct {
 }
 
 type Phrase struct {
-    words []string `json:"words"`
-    types []string `json:'types"`
+    Words []string `json:"words"`
+    Types []string `json:"types"`
 }
 
 func ParseConfig() {
     cfg, _ := os.Open("config.json")
     decoder := json.NewDecoder(cfg)
     decoder.Decode(&config)
+    log.Print(config)
 }
 
 type Game struct {
@@ -150,7 +152,7 @@ func addToQueue(sockCli ClientConn) {
         queue[0].websocket.WriteMessage(1, NewTurnPacket(map[string]interface{} {
             "turn": "your",
             "state": "give_clue",
-            "word": strings.Join(game.NewWord().words, " "),
+            "word": strings.Join(game.NewWord().Words, " "),
         }).toJson())
         queue[1].websocket.WriteMessage(1, NewFoundGamePacket(queue[0].name).toJson())
         queue[1].websocket.WriteMessage(1, NewTurnPacket(map[string]interface{} {
@@ -221,18 +223,18 @@ func websocketConn(r *http.Request, w http.ResponseWriter, ren render.Render) {
                     "turn": "your",
                     "state": "give_answer",
                     "clue": packet.Payload["clue"].(string),
-                    "types": games[sockCli].answer.types,
+                    "types": games[sockCli].answer.Types,
                 }).toJson())
                 break
             case "submit_answer":
                 game := games[sockCli]
-                sockCli.websocket.WriteMessage(1, NewAnswerPacket(packet.Payload["answer"].(string) == strings.Join(game.answer.words, " "),  packet.Payload["answer"].(string), game.clue, strings.Join(game.answer.words, " "), "your").toJson())
-                game.Opponent(sockCli).websocket.WriteMessage(1, NewAnswerPacket(packet.Payload["answer"].(string) == strings.Join(game.answer.words, " "),  packet.Payload["answer"].(string), game.clue, strings.Join(game.answer.words, " "), "their").toJson())
-                time.Sleep(time.Second * 15)
+                sockCli.websocket.WriteMessage(1, NewAnswerPacket(packet.Payload["answer"].(string) == strings.Join(game.answer.Words, " "),  packet.Payload["answer"].(string), game.clue, strings.Join(game.answer.Words, " "), "your").toJson())
+                game.Opponent(sockCli).websocket.WriteMessage(1, NewAnswerPacket(packet.Payload["answer"].(string) == strings.Join(game.answer.Words, " "),  packet.Payload["answer"].(string), game.clue, strings.Join(game.answer.Words, " "), "their").toJson())
+                time.Sleep(time.Second * 5)
                 sockCli.websocket.WriteMessage(1, NewTurnPacket(map[string]interface{} {
                     "turn": "your",
                     "state": "give_clue",
-                    "word": strings.Join(games[sockCli].NewWord().words, " "),
+                    "word": strings.Join(games[sockCli].NewWord().Words, " "),
                 }).toJson())
                 game.Opponent(sockCli).websocket.WriteMessage(1, NewTurnPacket(map[string]interface{} {
                     "turn": "their",
