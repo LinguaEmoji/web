@@ -223,7 +223,7 @@ func websocketConn(r *http.Request, w http.ResponseWriter, ren render.Render) {
                     "state": "give_clue",
                     "word": games[sockCli].NewWord(),
                 }).toJson())
-                sockCli.websocket.WriteMessage(1, NewTurnPacket(map[string]interface{} {
+                game.Opponent(sockCli).websocket.WriteMessage(1, NewTurnPacket(map[string]interface{} {
                     "turn": "their",
                     "state": "waiting_for_clue",
                 }).toJson())
