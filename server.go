@@ -79,12 +79,19 @@ func addToQueue(sockCli ClientConn) {
         games[queue[0]] = game
         games[queue[1]] = game
 
-        for i := 0; i != 2; i++ {
-            queue[i].websocket.WriteMessage(1, Packet {
-                Action: "Found Game",
-                Payload: map[string]interface{} {},
-            }.toJson())
-        }
+        queue[0].websocket.WriteMessage(1, Packet {
+            Action: "found_game",
+            Payload: map[string]interface{} {
+                "match": queue[1].name,
+            },
+        }.toJson())
+
+        queue[1].websocket.WriteMessage(1, Packet {
+            Action: "found_game",
+            Payload: map[string]interface{} {
+                "match": queue[0].name,
+            },
+        }.toJson())
 
         queue = queue[2:]
     }
