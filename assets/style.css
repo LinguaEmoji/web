@@ -47,3 +47,15 @@ body {
     display: none;
     margin-bottom: 10px;
 }
+
+#game-container {
+    margin-top: 25px;
+}
+
+#playing-with {
+    font-size: 1.7em;
+}
+
+#time-container {
+    text-align: right;
+}

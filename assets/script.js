@@ -2,6 +2,13 @@ $(document).ready(function() {
     console.log("Ready!");
 });
 
+function beginGame(p2Nick) {
+    $('#p2-nick').text(p2Nick);
+    $('#play-container').slideToggle(300, function() {
+        $('#game-container').fadeIn();
+    });
+}
+
 $('#play-button').click(function() {
     var nick = $('#nick-input').val().trim();
     if (nick == "") {
@@ -26,6 +33,11 @@ $('#play-button').click(function() {
 
     };
     ws.onmessage = function(event) {
-        console.log("Got message", event.data);
+        var msg     = JSON.parse(event.data);
+        var action  = msg['Action'];
+        var payload = msg['Payload'];
+        if (action == "found_game") {
+            beginGame(payload['match']);
+        }
     };
 });
