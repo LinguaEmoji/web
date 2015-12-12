@@ -191,7 +191,7 @@ func websocketConn(r *http.Request, w http.ResponseWriter, ren render.Render) {
                     "state": "waiting_for_answers",
                 }).toJson())
                 games[sockCli].Opponent(sockCli).websocket.WriteMessage(1, NewTurnPacket(map[string]interface{} {
-                    "turn": "yours",
+                    "turn": "your",
                     "state": "give_answer",
                     "clue": packet.Payload["clue"].(string),
                 }).toJson())
