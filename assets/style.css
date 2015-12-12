@@ -42,3 +42,8 @@ body {
 #howto h3 {
     text-align: center;
 }
+
+#load-status {
+    display: none;
+    margin-bottom: 10px;
+}
