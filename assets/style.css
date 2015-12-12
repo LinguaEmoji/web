@@ -120,3 +120,26 @@ body {
     text-align: center;
     margin-top: 10px;
 }
+
+#answer-container {
+    margin-top: 20px;
+    text-align: center;
+}
+
+#answer-container h1 span {
+    font-weight: normal;
+}
+
+#ans-result {
+    font-weight: normal;
+    font-size: 3em;
+}
+
+.phase {
+    margin: 0 auto;
+    background-color: #eee;
+    padding: 10px;
+    width: 250px;
+    margin-top: 10px;
+
+}

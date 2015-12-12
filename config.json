@@ -1,10 +1,32 @@
 {
     "phrases": [
-        "dancing cat",
-        "moonwalk",
-        "sunglasses",
-        "barking dog",
-        "facebook",
-        "digital ocean"
+        {
+            "words": ["dancing", "cat"],
+            "types": ["adjective", "noun"]
+        },
+        {
+            "words": ["moonwalk"],
+            "types": ["noun"]
+        },
+        {
+            "words": ["eye", "of", "the", "tiger"],
+            "types": ["noun", "prep", "article", "noun"]
+        },
+        {
+            "words": ["facebook"],
+            "types": ["company"]
+        },
+        {
+            "words": ["orange", "is", "the", "new", "black"],
+            "types": ["noun", "verb", "article", "adjective", "noun"]
+        },
+        {
+            "words": ["holy", "crap"],
+            "types": ["adjective", "noun"]
+        },
+        {
+            "words": ["golf", "clap"],
+            "types": ["noun", "noun"]
+        }
     ] 
 }
