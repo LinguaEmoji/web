@@ -1,9 +1,42 @@
 <div class="ui grid">
-    <div class="left floated four wide column" id="playing-with">
+    <div class="left floated eight wide column" id="playing-with">
         Playing with
-        <b id="p2-nick"></b>
+        <b class="p2-nick"></b>
     </div>
-    <div class="right floated four wide column" style="float: right" id="time-container">
+    <div class="right floated eight wide column" style="float: right" id="time-container">
         Yoo
+    </div>
+
+    <div id="emojify-container" style="display: none">
+        <h1 id="starting-header">
+            &ldquo;
+            <span id="starting-phrase"></span>
+            &rdquo;
+        </h1>
+        <div id="emojify-instructions">
+            translate to emoji
+            <br>
+            <i class="arrow down icon"></i>
+            <br>
+            <br>
+        </div>
+        <div id="emoji-container">
+            <div class="ui action input">
+                <input type="text" id="emoji-input" placeholder="Emoji..." disabled>
+                <button id="emoji-input-delete" class="ui red button">⌫</button>
+            </div>
+        </div>
+        <div id="emoji-submit-container">
+            <button id="emoji-submit" class="ui green button">  
+                Submit
+            </button>
+        </div>
+    </div>
+
+    <div class="wait-container">
+        <h1>
+            Waiting for
+            <span class="p2-nick"></span>
+        </h1>
     </div>
 </div>

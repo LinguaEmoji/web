@@ -1,13 +1,38 @@
-$(document).ready(function() {
-    console.log("Ready!");
+$('#emoji-input').ready(function() {
+    $('#emoji-input').emojiPicker({
+        button: false,
+        height: 200
+    });
 });
 
 function beginGame(p2Nick) {
-    $('#p2-nick').text(p2Nick);
+    $('.p2-nick').text(p2Nick);
     $('#play-container').slideToggle(300, function() {
         $('#game-container').fadeIn();
     });
 }
+
+function playTurn(phrase) {
+    $('#wait-container').hide();
+
+    $('#starting-phrase').text(phrase);
+    $('#emojify-container').fadeIn(400, function() {
+        $('#emoji-input').emojiPicker('toggle'); 
+        var style = $('.emojiPicker')[0].style;
+        style.position = "relative";
+        style.top = "";
+        style.left = "";
+        style.zoom = "1.5";
+        style.display = "block";
+    });
+}
+
+function waitTurn() {
+    $('#emojify-container').hide();
+    $('#wait-container').fadeIn();
+}
+
+var GLOBAL_WS;
 
 $('#play-button').click(function() {
     var nick = $('#nick-input').val().trim();
@@ -19,6 +44,7 @@ $('#play-button').click(function() {
     $('#play-container .input').addClass('disabled');
 
     var ws = new WebSocket("ws://localhost:3000/websocket");
+    GLOBAL_WS = ws;
     ws.onerror = function() {
         alert("Something bad happened!");
     };
@@ -34,10 +60,33 @@ $('#play-button').click(function() {
     };
     ws.onmessage = function(event) {
         var msg     = JSON.parse(event.data);
+        console.log(msg);
         var action  = msg['Action'];
         var payload = msg['Payload'];
         if (action == "found_game") {
             beginGame(payload['match']);
+        } else if (action == "turn") {
+            var turn = payload['turn'];
+            if (turn == "your") {
+                playTurn(payload['word']);
+            } else if (turn == "their") {
+                waitTurn();
+            }
         }
     };
+});
+
+$('#emoji-input-delete').click(function() {
+    var elem = $('#emoji-input');
+    elem.val(elem.val().slice(0, -2));
+});
+
+$('#emoji-submit').click(function() {
+    var msg = {
+        Action: 'submit_clue',
+        Payload: {
+            clue: $('#emoji-input').val()
+        }
+    }
+    ws.send(JSON.stringify(msg));
 });
