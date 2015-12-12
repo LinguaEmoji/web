@@ -171,6 +171,10 @@ func endGame(sockCli ClientConn) {
     RWMutex.Lock()
     if games[sockCli] != nil {
         opponent := games[sockCli].Opponent(sockCli)
+        opponent.websocket.WriteMessage(1, Packet {
+            Action: "Disconnect",
+            Payload: map[string]interface{} {},
+        }.toJson())
         delete(games, sockCli)
         delete(games, opponent)
     }
