@@ -65,7 +65,7 @@ body {
     margin: 0 auto;
 }
 
-#starting-header {
+.starting-header {
     margin: 0 auto;
     text-align: center;
     font-size: 3em;
@@ -101,4 +101,9 @@ body {
 #emoji-submit-container {
     text-align: center;
     margin-top: 5px;
+}
+
+#wait-container {
+    text-align: center;
+    margin: 0 auto;
 }
