@@ -7,6 +7,7 @@ import (
 
     "os"
     "net"
+    "time"
     "sync"
     "net/http"
     "math/rand"
@@ -79,11 +80,12 @@ func NewTurnPacket(payload map[string]interface{}) Packet {
     }
 }
 
-func NewAnswerPacket(b bool) Packet {
+func NewAnswerPacket(b bool, answer string, owner string) Packet {
     return Packet {
         Action: "answer",
         Payload: map[string]interface{} {
             "boolean": b,
+            "answer": answer,
         },
     }
 }
@@ -162,6 +164,16 @@ func removeFromQueue(sockCli ClientConn) {
     RWMutex.Unlock()
 }
 
+func endGame(sockCli ClientConn) {
+    RWMutex.Lock()
+    if games[sockCli] != nil {
+        opponent := games[sockCli].Opponent(sockCli)
+        delete(games, sockCli)
+        delete(games, opponent)
+    }
+    RWMutex.Unlock()
+}
+
 func websocketConn(r *http.Request, w http.ResponseWriter, ren render.Render) {
     ws, err := websocket.Upgrade(w, r, nil, 1024, 1024)
     if _, ok := err.(websocket.HandshakeError); ok || err != nil {
@@ -178,6 +190,7 @@ func websocketConn(r *http.Request, w http.ResponseWriter, ren render.Render) {
         _, raw, err := ws.ReadMessage()
         if err != nil {
             removeFromQueue(sockCli)
+            endGame(sockCli)
             return
         }
 
@@ -197,12 +210,9 @@ func websocketConn(r *http.Request, w http.ResponseWriter, ren render.Render) {
                 }).toJson())
                 break
             case "submit_answer":
-                if packet.Payload["answer"] != games[sockCli].answer {
-                    sockCli.websocket.WriteMessage(1, NewAnswerPacket(false).toJson())
-                    break
-                }
-
-                sockCli.websocket.WriteMessage(1, NewAnswerPacket(true).toJson())
+                sockCli.websocket.WriteMessage(1, NewAnswerPacket(packet.Payload["answer"].(string) != games[sockCli].answer,  packet.Payload["answer"].(string), "your").toJson())
+                games[sockCli].Opponent(sockCli).websocket.WriteMessage(1, NewAnswerPacket(packet.Payload["answer"].(string) != games[sockCli].answer,  packet.Payload["answer"].(string), "their").toJson())
+                time.Sleep(time.Second * 2)
                 sockCli.websocket.WriteMessage(1, NewTurnPacket(map[string]interface{} {
                     "turn": "your",
                     "state": "give_clue",
