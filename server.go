@@ -94,7 +94,7 @@ func addToQueue(sockCli ClientConn) {
 func removeFromQueue(sockCli ClientConn) {
     RWMutex.Lock()
     index := getIndexOf(queue, sockCli)
-    queue = append(queue[:index - 1], queue[index + 1:]...)
+    queue = append(queue[:index], queue[index + 1:]...)
     RWMutex.Unlock()
 }
 
