@@ -41,7 +41,7 @@ type Game struct {
 }
 
 func (game *Game) NewWord() Phrase {
-    random := rand.Intn((len(config.Phrases) - 1) - 0) + 0
+    random := rand.Intn(len(config.Phrases))
     game.answer = config.Phrases[random]
     return game.answer
 }

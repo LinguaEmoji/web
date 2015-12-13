@@ -31,6 +31,22 @@
         {
             "words": ["what", "does", "the", "fox", "say"],
             "types": ["pronoun", "verb", "article", "animal", "verb"]
+        },
+        {
+            "words": ["bible"],
+            "types": ["noun"]
+        },
+        {
+            "words": ["coffeescript"],
+            "types": ["noun"]
+        },
+        {
+            "words": ["cowboy"],
+            "types": ["noun"]
+        },
+        {
+            "words": ["over", "the", "rainbow"],
+            "types": ["prep", "article", "noun"]
         }
     ] 
 }
